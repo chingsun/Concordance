@@ -55,13 +55,17 @@ class Concordance:
             count += Word.getWordCount(value)
         return count
 
+    def getConcordance(self):
+        return self.concordance
+
     def writeConcordance(self):
         string = ""
-        index = 0
+        index = 1
         for key, value in sorted(self.concordance.items()):
             line = ""
-            line += alphabetList(index) + " " + key
-            whiteSpace = 29 - len(line)
+            # line += alphabetList(index) + " " + key
+            line += str(index) + ". " + key
+            whiteSpace = 30 - len(line)
             for x in range(1,whiteSpace):
                 line += " "
             line += Word.writeWord(value) + "\n"
@@ -104,6 +108,7 @@ def openFile(fileName):
         concordance = Concordance(fileName)
         output = parseFile(file, concordance)
         file.close()
+        print Concordance.writeConcordance(concordance)
         return output
     except IOError:
         print "File Opening Error"
