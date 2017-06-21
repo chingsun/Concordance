@@ -46,6 +46,9 @@ class Concordance:
         else: # Create new word object otherwise
             self.concordance[word] = Word(sentence)
 
+    def getFileName(self):
+        return self.fileName
+
     def getWordCount(self):
         count = 0
         for key,value in self.concordance.items():
@@ -85,11 +88,12 @@ def checkWord(word):
 def parseFile(file, concordance):
     text = file.read().replace('\n', ' ')
     tokenizedText = parsetree(text)
+    sentenceId = 1
     for sentence in tokenizedText:
         for word in sentence:
-            sentenceId = word.sentence.id
             for w in checkWord(word):
                 Concordance.add(concordance, w.lower(), sentenceId)
+        sentenceId += 1
     return concordance
 
 ## This function opens a given file and returns a Concordance Object
