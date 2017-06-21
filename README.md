@@ -14,6 +14,9 @@ To run the script you have 2 options.
     `python main.py $DIR`
   2) On multiple files <br />
     `python main.py $FILE1 $FILE2`
+    
+To run the test script<br />
+  `python test.py`
 
 #### Output
 The program will print the contents of the concordance object to stdout. It uses the writeMethod of the class.<br />
