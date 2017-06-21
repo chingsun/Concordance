@@ -20,8 +20,15 @@ class Word:
         self.count = 1
 
     def add(self, sentence):
-        self.sentences.append(sentence)
+        if not(sentence in self.sentences):
+            self.sentences.append(sentence)
         self.count += 1
+
+    def getWordCount(self):
+        return self.count
+
+    def getSentences(self):
+        return self.sentences
 
     def writeWord(self):
         sentences = str(self.sentences).strip('[]').replace(" ", "")
@@ -39,20 +46,39 @@ class Concordance:
         else: # Create new word object otherwise
             self.concordance[word] = Word(sentence)
 
+    def getWordCount(self):
+        count = 0
+        for key,value in self.concordance.items():
+            count += Word.getWordCount(value)
+        return count
+
     def writeConcordance(self):
-        string = self.fileName + ":"
+        string = ""
         index = 0
         for key, value in sorted(self.concordance.items()):
             line = ""
-            line += "\n"+ alphabetList(index) + " " + key
-            whiteSpace = 28 - len(line)
-            print whiteSpace
+            line += alphabetList(index) + " " + key
+            whiteSpace = 29 - len(line)
             for x in range(1,whiteSpace):
                 line += " "
-            line += Word.writeWord(value)
+            line += Word.writeWord(value) + "\n"
             string += line
             index += 1
         return string
+
+def isPunctuation(word):
+    punctuation = set('.,?!:;')
+    if any((p in punctuation) for p in str(word.type)):
+        return True
+    else:
+        return False
+
+def checkWord(word):
+    if not(isPunctuation(word)):
+        words = word.string.split('-')
+        return words
+    else:
+        return []
 
 ## This function takes an open file and an concordance object
 ## Parses the text of the file using parsetree
@@ -61,22 +87,27 @@ def parseFile(file, concordance):
     tokenizedText = parsetree(text)
     for sentence in tokenizedText:
         for word in sentence:
-            if word.type.isalpha(): # Makes sure word is a word and not a punctuation
-                Concordance.add(concordance, word.string.lower(), word.sentence.id)
-    print Concordance.writeConcordance(concordance)
+            sentenceId = word.sentence.id
+            for w in checkWord(word):
+                Concordance.add(concordance, w.lower(), sentenceId)
+    return concordance
 
-## This function checks the parameters for a file name and opens the file
+## This function opens a given file and returns a Concordance Object
 ## Then calls parseFile on the opened file
-def openFile():
+def openFile(fileName):
+    try:
+        file = open(fileName, 'r')
+        concordance = Concordance(fileName)
+        output = parseFile(file, concordance)
+        file.close()
+        return output
+    except IOError:
+        print "File Opening Error"
+
+
+if  __name__ =='__main__':
     if len(sys.argv) > 1:
         fileName = sys.argv[1]
-        file = open(fileName, 'r')
-        try:
-            concordance = Concordance(fileName)
-            parseFile(file, concordance)
-        finally:
-            file.close()
+        openFile(fileName)
     else:
         raise ValueError("File name parameter not passed")
-
-if  __name__ =='__main__':openFile()
